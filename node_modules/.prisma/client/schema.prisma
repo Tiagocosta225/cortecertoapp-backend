@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Barbearia {
+  id                Int           @id @default(autoincrement())
+  nome              String
+  endereco          String
+  telefone          String
+  horarioAbertura   String
+  horarioFechamento String
+  agendamentos      Agendamento[]
+  clientes          Cliente[]
+  servicos          Servico[]
+}
+
+model Cliente {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  telefone     String
+  email        String?       @unique
+  barbeariaId  Int
+  agendamentos Agendamento[]
+  barbearia    Barbearia     @relation(fields: [barbeariaId], references: [id])
+}
+
+model Servico {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  preco        Float
+  duracaoMin   Int
+  barbeariaId  Int
+  agendamentos Agendamento[]
+  barbearia    Barbearia     @relation(fields: [barbeariaId], references: [id])
+}
+
+model Agendamento {
+  id          Int       @id @default(autoincrement())
+  data        DateTime
+  status      String    @default("pendente")
+  clienteId   Int
+  barbeariaId Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  servicoId   Int
+  barbearia   Barbearia @relation(fields: [barbeariaId], references: [id])
+  cliente     Cliente   @relation(fields: [clienteId], references: [id])
+  servico     Servico   @relation(fields: [servicoId], references: [id])
+}
